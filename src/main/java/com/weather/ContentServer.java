@@ -59,8 +59,8 @@ public class ContentServer {
 
         // Load and send initial data
         try {
-            loadWeatherData(filePath);
-            sendWeatherUpdate();
+            loadWeatherData(filePath).sendWeatherUpdate();
+//            sendWeatherUpdate();
         } catch (Exception e) {
             System.err.println("Error with initial data: " + e.getMessage());
             return;
@@ -85,8 +85,8 @@ public class ContentServer {
                     continue;
                 }
 
-                loadWeatherData(nextFilePath);
-                sendWeatherUpdate();
+                loadWeatherData(nextFilePath).sendWeatherUpdate();
+//                sendWeatherUpdate();
 
             } catch (Exception e) {
                 System.err.println("Error processing file: " + e.getMessage());
@@ -99,6 +99,13 @@ public class ContentServer {
     public void start() {
         try {
             sendWeatherUpdate();
+        } catch (Exception e) {
+            System.err.println("Content server error: " + e.getMessage());
+        }
+    }
+    public void start(String filePath) {
+        try {
+            loadWeatherData(filePath).sendWeatherUpdate();
         } catch (Exception e) {
             System.err.println("Content server error: " + e.getMessage());
         }
@@ -120,9 +127,9 @@ public class ContentServer {
         return url;
     }
 
-    private void loadWeatherData(String filePath) throws IOException {
+    private ContentServer loadWeatherData(String filePath) throws IOException {
         String fileContent = FileUtils.readCSWeatherFile(filePath);
-        if (fileContent == null) {
+        if (fileContent == null){
             throw new IOException("Failed to read weather data from file: " + filePath);
         }
         weatherData = FileUtils.parseWeatherData(fileContent);
@@ -130,6 +137,7 @@ public class ContentServer {
         if (interactiveMode) {
             System.out.println(" ==> Loaded weather data from: " + filePath);
         }
+        return this;
     }
 
     private void sendWeatherUpdate() {
@@ -196,7 +204,7 @@ public class ContentServer {
         }
     }
 
-    private void cleanup() {
+    public void cleanup() {
         if (scanner != null) {
             scanner.close();
         }

@@ -1,0 +1,17 @@
+id:TAS01
+name:Devonport
+state:TAS
+time_zone:AEST
+lat:-41.2
+lon:146.3
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:11.0
+apparent_t:8.4
+cloud:Mostly cloudy
+dewpt:6.2
+press:1025.9
+rel_hum:74
+wind_dir:SW
+wind_spd_kmh:18
+wind_spd_kt:10

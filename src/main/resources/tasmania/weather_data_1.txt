@@ -1,0 +1,17 @@
+id:TAS01
+name:Hobart
+state:TAS
+time_zone:AEST
+lat:-42.9
+lon:147.3
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:10.5
+apparent_t:7.2
+cloud:Cloudy
+dewpt:6.0
+press:1027.8
+rel_hum:78
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8

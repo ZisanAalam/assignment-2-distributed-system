@@ -1,12 +1,17 @@
 package com.weather;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import utils.WeatherData;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.util.List;
 import java.util.Scanner;
 
-class GETClient {
+
+public class GETClient {
     private static final int DEFAULT_PORT = 8080;
     private int lamportClock = 0;
     private final String serverUrl;
@@ -37,7 +42,7 @@ class GETClient {
         }
     }
 
-    public void fetchWeatherData(String stationID) {
+    public List<WeatherData> fetchWeatherData(String stationID) {
         try {
             lamportClock++;
 
@@ -70,7 +75,7 @@ class GETClient {
                 String responseLine = in.readLine();
                 if (responseLine == null) {
                     System.err.println("No response from server");
-                    return;
+                    return null;
                 }
 
                 String[] parts = responseLine.split(" ", 3);
@@ -78,7 +83,7 @@ class GETClient {
                     int statusCode = Integer.parseInt(parts[1]);
                     if (statusCode != 200) {
                         System.err.println("Error response: " + statusCode);
-                        return;
+                        return null;
                     }
                 }
 
@@ -101,37 +106,18 @@ class GETClient {
                 }
 
                 String jsonData = new String(buffer, 0, totalRead);
-//                displayWeatherData(jsonData, stationID);
-                System.out.println(jsonData);
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                List<WeatherData> weatherDatas = gson.fromJson(jsonData, new TypeToken<List<WeatherData>>() {}.getType());
+                System.out.println("===== Fetched weather Data ========");
+                System.out.println(weatherDatas);
+//                System.out.println(jsonData);
+                return weatherDatas;
             }
         } catch (Exception e) {
             System.err.println("Error fetching weather data: " + e.getMessage());
         }
+        return null;
     }
-
-//    private void displayWeatherData(String jsonData, String stationFilter) {
-//        try {
-//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//            JsonElement root = JsonParser.parseString(jsonData);
-//
-//            if (stationFilter != null && root.isJsonArray()) {
-//                JsonArray filtered = new JsonArray();
-//                for (JsonElement elem : root.getAsJsonArray()) {
-//                    JsonObject obj = elem.getAsJsonObject();
-//                    if (obj.has("id") && obj.get("id").getAsString().equals(stationFilter)) {
-//                        filtered.add(obj);
-//                    }
-//                }
-//                System.out.println(gson.toJson(filtered));
-//            } else {
-//                // Print all data
-//                System.out.println(gson.toJson(root));
-//            }
-//
-//        } catch (Exception e) {
-//            System.err.println("Error displaying weather data: " + e.getMessage());
-//        }
-//    }
 
     private String normalizeUrl(String url) {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {

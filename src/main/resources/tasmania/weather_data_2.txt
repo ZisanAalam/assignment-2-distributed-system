@@ -1,0 +1,17 @@
+id:TAS01
+name:Launceston
+state:TAS
+time_zone:AEST
+lat:-41.4
+lon:147.1
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:12.2
+apparent_t:9.8
+cloud:Partly cloudy
+dewpt:5.5
+press:1026.2
+rel_hum:70
+wind_dir:W
+wind_spd_kmh:13
+wind_spd_kt:7

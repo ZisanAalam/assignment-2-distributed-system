@@ -31,6 +31,11 @@ public class AggregationServer {
     private volatile boolean running = true;
     private final Gson gson = new Gson();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ServerSocket serverSocket;
+
+    public AggregationServer() {
+        this.port = DEFAULT_PORT;
+    }
 
     public AggregationServer(int port) {
         this.port = port;
@@ -57,7 +62,8 @@ public class AggregationServer {
         threadPool.submit(this::processRequests);
         threadPool.submit(this::manageExpiredData);
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try{
+            serverSocket = new ServerSocket(port);
             System.out.println("Server listening on port " + port);
 
             while (running) {
@@ -152,7 +158,6 @@ public class AggregationServer {
             sendResponse(out, 500, "Internal Server Error", "");
         }
     }
-
 
     private void handlePutRequest(BufferedReader in, PrintWriter out, Map<String, String> headers) {
         try {
@@ -253,8 +258,8 @@ public class AggregationServer {
 
             synchronized (fileLock) {
                 List<WeatherData> allData = FileUtils.loadWeatherData();
-                long currentTime = System.currentTimeMillis() / 1000;
-                allData.removeIf(d -> (currentTime - d.getLastUpdated()) > EXPIRY_SECONDS);
+
+                allData.removeIf(d -> d.isExpired(EXPIRY_SECONDS));
 
                 String stationId = request.data; // optional
                 List<WeatherData> filteredData;
@@ -345,5 +350,51 @@ public class AggregationServer {
             return result;
         }
     }
+
+    public void stop() {
+        running = false; // stop accepting new requests
+
+        // Close server socket
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            try {
+                serverSocket.close();
+                System.out.println("Server socket closed.");
+            } catch (IOException e) {
+                System.err.println("Error closing server socket: " + e.getMessage());
+            }
+        }
+
+        // Shutdown thread pool
+        threadPool.shutdown();
+        try {
+            if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                threadPool.shutdownNow();
+            }
+            System.out.println("Thread pool shutdown complete.");
+        } catch (InterruptedException e) {
+            threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        // Shutdown scheduler
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+            System.out.println("Scheduler shutdown complete.");
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        // Clear queues and clocks
+        requestQueue.clear();
+        contentServerClocks.clear();
+        clientClocks.clear();
+        FileUtils.deleteDataFile();
+        System.out.println("Server cleanup complete.");
+    }
+
 }
 

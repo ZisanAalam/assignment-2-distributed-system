@@ -1,0 +1,17 @@
+id:VIC01
+name:Geelong
+state:VIC
+time_zone:AEST
+lat:-38.15
+lon:144.35
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:17.0
+apparent_t:16.2
+cloud:Cloudy
+dewpt:9.8
+press:1020.2
+rel_hum:66
+wind_dir:W
+wind_spd_kmh:15
+wind_spd_kt:8

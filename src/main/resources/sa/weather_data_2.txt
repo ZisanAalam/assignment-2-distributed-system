@@ -1,0 +1,17 @@
+id:SA01
+name:Mount Gambier
+state:SA
+time_zone:CST
+lat:-37.83
+lon:140.78
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:11.1
+apparent_t:9.0
+cloud:Cloudy
+dewpt:6.2
+press:1024.4
+rel_hum:70
+wind_dir:SW
+wind_spd_kmh:12
+wind_spd_kt:6

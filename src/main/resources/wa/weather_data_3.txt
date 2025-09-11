@@ -1,0 +1,17 @@
+id:WA01
+name:Kalgoorlie
+state:WA
+time_zone:AWST
+lat:-30.7
+lon:121.5
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:22.8
+apparent_t:22.0
+cloud:Partly cloudy
+dewpt:7.5
+press:1013.4
+rel_hum:41
+wind_dir:SE
+wind_spd_kmh:16
+wind_spd_kt:9

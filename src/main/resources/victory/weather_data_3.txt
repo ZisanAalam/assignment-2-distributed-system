@@ -1,0 +1,17 @@
+id:VIC01
+name:Bendigo
+state:VIC
+time_zone:AEST
+lat:-36.76
+lon:144.28
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:16.2
+apparent_t:15.0
+cloud:Sunny
+dewpt:7.1
+press:1022.4
+rel_hum:58
+wind_dir:SE
+wind_spd_kmh:11
+wind_spd_kt:6

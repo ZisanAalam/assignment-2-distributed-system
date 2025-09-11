@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,5 +130,35 @@ public class FileUtils {
             System.err.println("Error loading weather data: " + e.getMessage());
             return new ArrayList<>();
         }
+    }
+
+    public static void deleteDataFile() {
+        File file = new File(DATA_FILE);
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("Deleted file: " + DATA_FILE);
+            } else {
+                System.out.println("Failed to delete file: " + DATA_FILE);
+            }
+        } else {
+            System.out.println("File does not exist: " + DATA_FILE);
+        }
+    }
+
+    public static WeatherData loadWeatherDataObj(String filePath) {
+        //Read file content
+        String fileContent = readCSWeatherFile(filePath);
+        if (fileContent == null) {
+            System.err.println("Failed to read weather data from file: " + filePath);
+            return null;
+        }
+
+        // Parse content into WeatherData object
+        WeatherData weatherData = parseWeatherData(fileContent);
+        if (weatherData == null) {
+            System.err.println("Failed to parse weather data from file: " + filePath);
+        }
+
+        return weatherData;
     }
 }

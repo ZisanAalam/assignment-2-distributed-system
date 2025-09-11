@@ -1,0 +1,17 @@
+id:QLD01
+name:Townsville
+state:QLD
+time_zone:AEST
+lat:-19.3
+lon:146.8
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:28.0
+apparent_t:29.5
+cloud:Cloudy
+dewpt:21.5
+press:1011.6
+rel_hum:72
+wind_dir:SE
+wind_spd_kmh:22
+wind_spd_kt:12

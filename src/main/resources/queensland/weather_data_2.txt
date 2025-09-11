@@ -1,0 +1,17 @@
+id:QLD01
+name:Cairns
+state:QLD
+time_zone:AEST
+lat:-16.9
+lon:145.8
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:29.1
+apparent_t:32.2
+cloud:Partly cloudy
+dewpt:23.3
+press:1010.8
+rel_hum:78
+wind_dir:E
+wind_spd_kmh:19
+wind_spd_kt:10

@@ -1,0 +1,17 @@
+id:WA01
+name:Broome
+state:WA
+time_zone:AWST
+lat:-17.9
+lon:122.2
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:32.1
+apparent_t:34.0
+cloud:Sunny
+dewpt:21.0
+press:1009.2
+rel_hum:60
+wind_dir:NE
+wind_spd_kmh:18
+wind_spd_kt:10

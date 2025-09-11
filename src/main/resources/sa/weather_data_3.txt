@@ -1,0 +1,17 @@
+id:SA01
+name:Port Augusta
+state:SA
+time_zone:CST
+lat:-32.49
+lon:137.77
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:16.5
+apparent_t:15.2
+cloud:Sunny
+dewpt:7.5
+press:1021.8
+rel_hum:52
+wind_dir:N
+wind_spd_kmh:19
+wind_spd_kt:10

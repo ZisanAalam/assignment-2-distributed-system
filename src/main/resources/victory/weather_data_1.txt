@@ -1,0 +1,17 @@
+id:VIC01
+name:Melbourne (Olympic Park)
+state:VIC
+time_zone:AEST
+lat:-37.81
+lon:144.96
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:18.1
+apparent_t:17.0
+cloud:Partly cloudy
+dewpt:10.6
+press:1021.1
+rel_hum:63
+wind_dir:SW
+wind_spd_kmh:13
+wind_spd_kt:7

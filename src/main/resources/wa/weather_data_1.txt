@@ -1,0 +1,17 @@
+id:WA01
+name:Perth
+state:WA
+time_zone:AWST
+lat:-31.9
+lon:115.9
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:19.7
+apparent_t:19.1
+cloud:Clear
+dewpt:8.3
+press:1016.7
+rel_hum:54
+wind_dir:SW
+wind_spd_kmh:20
+wind_spd_kt:11

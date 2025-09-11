@@ -1,0 +1,17 @@
+id:NSW01
+name:Newcastle
+state:NSW
+time_zone:AEST
+lat:-32.93
+lon:151.77
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:21.2
+apparent_t:22.0
+cloud:Partly cloudy
+dewpt:13.6
+press:1018.7
+rel_hum:60
+wind_dir:E
+wind_spd_kmh:15
+wind_spd_kt:8

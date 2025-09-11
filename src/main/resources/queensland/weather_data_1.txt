@@ -1,0 +1,17 @@
+id:QLD01
+name:Brisbane
+state:QLD
+time_zone:AEST
+lat:-27.5
+lon:153.0
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:25.3
+apparent_t:26.0
+cloud:Mostly sunny
+dewpt:17.4
+press:1012.5
+rel_hum:65
+wind_dir:NE
+wind_spd_kmh:14
+wind_spd_kt:8
