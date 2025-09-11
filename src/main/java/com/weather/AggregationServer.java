@@ -30,6 +30,7 @@ public class AggregationServer {
     private final Object fileLock = new Object();
     private volatile boolean running = true;
     private final Gson gson = new Gson();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public AggregationServer(int port) {
         this.port = port;
@@ -134,7 +135,11 @@ public class AggregationServer {
             }
 
             Request request = new Request(Request.Type.GET, clientId, clockValue, stationId);
-            requestQueue.offer(request);
+
+            if (!requestQueue.offer(request)) {
+                sendResponse(out, 503, "Service Unavailable", "Server is overloaded, try again later.");
+                return;
+            }
 
             String result = request.waitForResult();
             if (result.startsWith("ERROR:")) {
@@ -169,7 +174,11 @@ public class AggregationServer {
 
             String jsonData = new String(buffer, 0, totalRead);
             Request request = new Request(Request.Type.PUT, null, clockValue, jsonData);
-            requestQueue.offer(request);
+
+            if (!requestQueue.offer(request)) {
+                sendResponse(out, 503, "Service Unavailable", "Server is overloaded, try again later.");
+                return;
+            }
 
             String result = request.waitForResult();
             if (result.startsWith("ERROR:")) {
@@ -266,16 +275,14 @@ public class AggregationServer {
     }
 
     private void manageExpiredData() {
-        while (running) {
+        scheduler.scheduleAtFixedRate(() -> {
             try {
-                Thread.sleep(10000);
                 synchronized (fileLock) {
                     List<WeatherData> allData = FileUtils.loadWeatherData();
-                    long currentTime = System.currentTimeMillis() / 1000;
                     List<String> expiredStations = new ArrayList<>();
 
                     allData.removeIf(d -> {
-                        boolean expired = (currentTime - d.getLastUpdated()) > EXPIRY_SECONDS;
+                        boolean expired = d.isExpired(EXPIRY_SECONDS);
                         if (expired) expiredStations.add(d.getId());
                         return expired;
                     });
@@ -286,13 +293,10 @@ public class AggregationServer {
                         System.out.println("Expired stations removed: " + expiredStations);
                     }
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
             } catch (Exception e) {
                 System.err.println("Error managing expired data: " + e.getMessage());
             }
-        }
+        }, 0, 10, TimeUnit.SECONDS); // initial delay = 0, repeat every 10s
     }
 
     private void sendResponse(PrintWriter out, int statusCode, String statusMessage, String body) {

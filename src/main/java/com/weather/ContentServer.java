@@ -9,10 +9,10 @@ import java.util.Scanner;
 
 public class ContentServer {
     private static final int DEFAULT_PORT = 8080;
-    private String serverUrl;
+    private final String serverUrl;
     private int lamportClock;
     private WeatherData weatherData;
-    private Scanner scanner;
+    private final Scanner scanner;
     private boolean interactiveMode;
 
     public ContentServer(String serverUrl, String filePath) {
@@ -128,7 +128,7 @@ public class ContentServer {
         weatherData = FileUtils.parseWeatherData(fileContent);
 
         if (interactiveMode) {
-            System.out.println("✓ Loaded weather data from: " + filePath);
+            System.out.println(" ==> Loaded weather data from: " + filePath);
         }
     }
 
@@ -165,21 +165,18 @@ public class ContentServer {
                     String[] parts = responseLine.split(" ", 3);
                     if (parts.length >= 2) {
                         int statusCode = Integer.parseInt(parts[1]);
-                        System.out.println("=====================");
-                        System.out.println(statusCode);
-                        System.out.println("=====================");
                         String statusMessage = getStatusMessage(statusCode);
 
                         if (interactiveMode) {
-                            System.out.println(" == Update sent for " + weatherData.getId() +
+                            System.out.println(" ==> Update sent for " + weatherData.getId() +
                                     " (clock=" + lamportClock + ") - " + statusMessage);
                         } else {
-                            System.out.println(" == Update sent for " + weatherData.getId() +
+                            System.out.println(" ==> Update sent for " + weatherData.getId() +
                                     " (clock=" + lamportClock + ") - Status: " + statusCode);
                         }
 
                         if (statusCode == 400) {
-                            System.err.println("Out-of-order request rejected. Resetting clock.");
+                            System.err.println(" ==> Clock Out-of-order. Request rejected.");
                         }
                     }
                 }
