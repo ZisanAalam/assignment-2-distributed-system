@@ -1,41 +1,50 @@
 package com.weather;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import com.google.gson.*;
+import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Scanner;
 
 class GETClient {
+    private static final int DEFAULT_PORT = 8080;
     private int lamportClock = 0;
     private final String serverUrl;
-    private final String stationFilter;
 
-    public GETClient(String serverUrl, String stationFilter) {
+    public GETClient(String serverUrl) {
         this.serverUrl = normalizeUrl(serverUrl);
-        this.stationFilter = stationFilter;
     }
 
     public static void main(String[] args) {
-//        if (args.length < 1) {
-//            System.err.println("Usage: java GETClient <server_url> [station_id]");
-//            System.exit(1);
-//        }
-//
-//        String stationFilter = args.length > 1 ? args[1] : null;
-//        Client client = new Client(args[0], stationFilter);
-        GETClient client = new GETClient("localhost:4567","IDS60902");
-        client.fetchWeatherData();
+        if (args.length < 1) {
+            System.err.println("Usage: java GETClient <server_url>");
+            System.exit(1);
+        }
+
+        GETClient client = new GETClient(args[0]);
+
+        // Interactive loop
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("\nEnter station_id (or press Enter for all, type 'exit' to quit): ");
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Closing client...");
+                break;
+            }
+            String stationID = input.isEmpty() ? null : input;
+            client.fetchWeatherData(stationID);
+        }
     }
 
-    public void fetchWeatherData() {
+    public void fetchWeatherData(String stationID) {
         try {
             lamportClock++;
 
             // Parse server URL
             URL url = new URL(serverUrl);
             String host = url.getHost();
-            int port = url.getPort() == -1 ? 4567 : url.getPort();
+            int port = url.getPort() == -1 ? DEFAULT_PORT : url.getPort();
 
             // Send GET request
             try (Socket socket = new Socket(host, port);
@@ -43,14 +52,21 @@ class GETClient {
                  BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
                 // Send HTTP GET request
-                out.println("GET /weather.json HTTP/1.1");
+//                out.println("GET /weather.json HTTP/1.1");
+                if (stationID == null) {
+                    out.println("GET /weather.json HTTP/1.1");
+                } else {
+                    out.println("GET /weather.json?stationID=" + stationID + " HTTP/1.1");
+                }
+
                 out.println("Host: " + host + ":" + port);
                 out.println("User-Agent: ATOMClient/1.0");
                 out.println("Lamport-Clock: " + lamportClock);
+                out.println("Connection: keep-alive");
                 out.println();
                 out.flush();
 
-                // Read response headers
+                // Read response status line
                 String responseLine = in.readLine();
                 if (responseLine == null) {
                     System.err.println("No response from server");
@@ -60,14 +76,13 @@ class GETClient {
                 String[] parts = responseLine.split(" ", 3);
                 if (parts.length >= 2) {
                     int statusCode = Integer.parseInt(parts[1]);
-
                     if (statusCode != 200) {
                         System.err.println("Error response: " + statusCode);
                         return;
                     }
                 }
 
-                // Skip headers
+                // Read headers
                 String line;
                 int contentLength = 0;
                 while ((line = in.readLine()) != null && !line.isEmpty()) {
@@ -86,21 +101,37 @@ class GETClient {
                 }
 
                 String jsonData = new String(buffer, 0, totalRead);
-                displayWeatherData(jsonData);
-
+//                displayWeatherData(jsonData, stationID);
+                System.out.println(jsonData);
             }
         } catch (Exception e) {
             System.err.println("Error fetching weather data: " + e.getMessage());
         }
     }
 
-    private void displayWeatherData(String jsonData) {
-        try {
-            System.out.println(jsonData);
-        } catch (Exception e) {
-            System.err.println("Error displaying weather data: " + e.getMessage());
-        }
-    }
+//    private void displayWeatherData(String jsonData, String stationFilter) {
+//        try {
+//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//            JsonElement root = JsonParser.parseString(jsonData);
+//
+//            if (stationFilter != null && root.isJsonArray()) {
+//                JsonArray filtered = new JsonArray();
+//                for (JsonElement elem : root.getAsJsonArray()) {
+//                    JsonObject obj = elem.getAsJsonObject();
+//                    if (obj.has("id") && obj.get("id").getAsString().equals(stationFilter)) {
+//                        filtered.add(obj);
+//                    }
+//                }
+//                System.out.println(gson.toJson(filtered));
+//            } else {
+//                // Print all data
+//                System.out.println(gson.toJson(root));
+//            }
+//
+//        } catch (Exception e) {
+//            System.err.println("Error displaying weather data: " + e.getMessage());
+//        }
+//    }
 
     private String normalizeUrl(String url) {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {

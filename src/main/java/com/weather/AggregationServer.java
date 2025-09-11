@@ -15,10 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 
 public class AggregationServer {
-    private static final int DEFAULT_PORT = 4567;
+    private static final int DEFAULT_PORT = 8080;
     private static final int EXPIRY_SECONDS = 30;
 
     private final int port;
@@ -99,7 +100,9 @@ public class AggregationServer {
 
             String method = requestParts[0];
             if ("GET".equals(method)) {
-                handleGetRequest(out, headers, socket.getRemoteSocketAddress().toString());
+                String path = requestParts[1];
+                System.out.println("Path :: "+path);
+                handleGetRequest(out, headers, socket.getRemoteSocketAddress().toString(), path);
             } else if ("PUT".equals(method)) {
                 handlePutRequest(in, out, headers);
             } else {
@@ -111,10 +114,26 @@ public class AggregationServer {
         }
     }
 
-    private void handleGetRequest(PrintWriter out, Map<String, String> headers, String clientId) {
+    private void handleGetRequest(PrintWriter out, Map<String, String> headers, String clientId, String path) {
         try {
             int clockValue = Integer.parseInt(headers.getOrDefault("lamport-clock", "0"));
-            Request request = new Request(Request.Type.GET, clientId, clockValue, null);
+
+            // Parse query param
+            String stationId = null;
+            if (path.contains("?")) {
+                String[] parts = path.split("\\?", 2);
+                if (parts.length == 2) {
+                    String[] queryParams = parts[1].split("&");
+                    for (String param : queryParams) {
+                        String[] kv = param.split("=", 2);
+                        if (kv.length == 2 && kv[0].equals("stationID")) {
+                            stationId = kv[1];
+                        }
+                    }
+                }
+            }
+
+            Request request = new Request(Request.Type.GET, clientId, clockValue, stationId);
             requestQueue.offer(request);
 
             String result = request.waitForResult();
@@ -128,6 +147,7 @@ public class AggregationServer {
             sendResponse(out, 500, "Internal Server Error", "");
         }
     }
+
 
     private void handlePutRequest(BufferedReader in, PrintWriter out, Map<String, String> headers) {
         try {
@@ -227,7 +247,17 @@ public class AggregationServer {
                 long currentTime = System.currentTimeMillis() / 1000;
                 allData.removeIf(d -> (currentTime - d.getLastUpdated()) > EXPIRY_SECONDS);
 
-                String jsonResult = gson.toJson(allData);
+                String stationId = request.data; // optional
+                List<WeatherData> filteredData;
+                if (stationId == null || stationId.isEmpty()) {
+                    filteredData = allData; // return all
+                } else {
+                    filteredData = allData.stream()
+                            .filter(d -> stationId.equals(d.getId()))
+                            .collect(Collectors.toList());
+                }
+
+                String jsonResult = gson.toJson(filteredData);
                 request.setResult(jsonResult);
             }
         } catch (Exception e) {
@@ -264,7 +294,6 @@ public class AggregationServer {
             }
         }
     }
-
 
     private void sendResponse(PrintWriter out, int statusCode, String statusMessage, String body) {
         out.println("HTTP/1.1 " + statusCode + " " + statusMessage);
