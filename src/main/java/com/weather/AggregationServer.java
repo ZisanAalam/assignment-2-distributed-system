@@ -32,6 +32,7 @@ public class AggregationServer {
     private final Gson gson = new Gson();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ServerSocket serverSocket;
+    private final CountDownLatch started = new CountDownLatch(1);
 
     public AggregationServer() {
         this.port = DEFAULT_PORT;
@@ -62,9 +63,10 @@ public class AggregationServer {
         threadPool.submit(this::processRequests);
         threadPool.submit(this::manageExpiredData);
 
-        try{
+        try {
             serverSocket = new ServerSocket(port);
             System.out.println("Server listening on port " + port);
+            started.countDown(); // 🔑 signal server is ready
 
             while (running) {
                 try {
@@ -81,6 +83,9 @@ public class AggregationServer {
         } finally {
             threadPool.shutdown();
         }
+    }
+    public void waitUntilStarted() throws InterruptedException {
+        started.await(); // block until countDown() called
     }
 
     private void handleConnection(Socket socket) {

@@ -2,6 +2,7 @@ package com.weather;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import utils.Utils;
 import utils.WeatherData;
 
 import java.io.*;
@@ -21,6 +22,7 @@ public class GETClient {
     }
 
     public static void main(String[] args) {
+//        new GETClient("http://localhost:8080").fetchWeatherData(null);
         if (args.length < 1) {
             System.err.println("Usage: java GETClient <server_url>");
             System.exit(1);
@@ -42,7 +44,7 @@ public class GETClient {
         }
     }
 
-    public List<WeatherData> fetchWeatherData(String stationID) {
+    public String fetchWeatherData(String stationID) {
         try {
             lamportClock++;
 
@@ -106,12 +108,9 @@ public class GETClient {
                 }
 
                 String jsonData = new String(buffer, 0, totalRead);
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                List<WeatherData> weatherDatas = gson.fromJson(jsonData, new TypeToken<List<WeatherData>>() {}.getType());
                 System.out.println("===== Fetched weather Data ========");
-                System.out.println(weatherDatas);
-//                System.out.println(jsonData);
-                return weatherDatas;
+                System.out.println(Utils.toPretty(jsonData));
+                return jsonData;
             }
         } catch (Exception e) {
             System.err.println("Error fetching weather data: " + e.getMessage());

@@ -86,7 +86,6 @@ public class ContentServer {
                 }
 
                 loadWeatherData(nextFilePath).sendWeatherUpdate();
-//                sendWeatherUpdate();
 
             } catch (Exception e) {
                 System.err.println("Error processing file: " + e.getMessage());
@@ -96,19 +95,21 @@ public class ContentServer {
         cleanup();
     }
 
-    public void start() {
+    public int start() {
         try {
-            sendWeatherUpdate();
+            return sendWeatherUpdate();
         } catch (Exception e) {
             System.err.println("Content server error: " + e.getMessage());
         }
+        return -1;
     }
-    public void start(String filePath) {
+    public int start(String filePath) {
         try {
-            loadWeatherData(filePath).sendWeatherUpdate();
+            return loadWeatherData(filePath).sendWeatherUpdate();
         } catch (Exception e) {
             System.err.println("Content server error: " + e.getMessage());
         }
+        return -1;
     }
 
     private String parseServerUrl(String url) {
@@ -140,7 +141,7 @@ public class ContentServer {
         return this;
     }
 
-    private void sendWeatherUpdate() {
+    private int sendWeatherUpdate() {
         try {
             lamportClock++;
             weatherData.updateTimestamp();
@@ -186,12 +187,15 @@ public class ContentServer {
                         if (statusCode == 400) {
                             System.err.println(" ==> Clock Out-of-order. Request rejected.");
                         }
+
+                        return statusCode; // Return status code
                     }
                 }
             }
         } catch (Exception e) {
             System.err.println("Error sending update: " + e.getMessage());
         }
+        return -1; // Return -1 if failed
     }
 
     private String getStatusMessage(int statusCode) {
@@ -222,5 +226,9 @@ public class ContentServer {
 
     public int getLamportClock() {
         return lamportClock;
+    }
+
+    public void reduceLamportClock() {
+        lamportClock--;
     }
 }
