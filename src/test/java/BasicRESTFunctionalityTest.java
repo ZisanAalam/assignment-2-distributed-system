@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class BasicRESTFunctionalityTest {
 
     private AggregationServer ag;
-    private final int serverPort = 8080;
+    private final int serverPort = 4567;
     private final String serverUrl = "http://localhost:"+serverPort;
 
     @Before

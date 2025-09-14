@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class ContentServer {
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 4567;
     private final String serverUrl;
     private int lamportClock;
     private WeatherData weatherData;

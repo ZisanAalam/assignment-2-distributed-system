@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 public class AggregationServer {
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 4567;
     private static final int EXPIRY_SECONDS = 30;
 
     private final int port;

@@ -1,19 +1,14 @@
 package com.weather;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import utils.Utils;
-import utils.WeatherData;
-
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
-import java.util.List;
 import java.util.Scanner;
 
 
 public class GETClient {
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 4567;
     private int lamportClock = 0;
     private final String serverUrl;
 
@@ -22,7 +17,6 @@ public class GETClient {
     }
 
     public static void main(String[] args) {
-//        new GETClient("http://localhost:8080").fetchWeatherData(null);
         if (args.length < 1) {
             System.err.println("Usage: java GETClient <server_url>");
             System.exit(1);
