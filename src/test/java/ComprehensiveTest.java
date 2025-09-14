@@ -11,7 +11,7 @@ import utils.WeatherData;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ComprehensiveTest {
 
@@ -47,7 +47,7 @@ public class ComprehensiveTest {
         List<WeatherData> list2 = Utils.toWeatherDataList(jsonData);
         assertEquals(list1,list2);
         System.out.println("✅Passed: Station data first updated successful");
-//        cs.cleanup();
+        cs.cleanup();
     }
 
     //PUT -> PUT -> GET
@@ -64,7 +64,7 @@ public class ComprehensiveTest {
         List<WeatherData> List2 = Utils.toWeatherDataList(jsonData);
         assertEquals(list1,List2);
         System.out.println("✅Passed: Station data two consecutive updated successful");
-//        cs.cleanup();
+        cs.cleanup();
     }
 
     //PUT  -> GET -> PUT
@@ -82,7 +82,7 @@ public class ComprehensiveTest {
 
         cs.start("src/main/resources/vic/weather_data_2.txt");
         System.out.println("✅Passed: Update and Get working Sequentially in the order it is received ");
-//        cs.cleanup();
+        cs.cleanup();
     }
 
     // PUT (Queensland station) -> PUT (Tasmania Station) -> GET
@@ -102,11 +102,40 @@ public class ComprehensiveTest {
         List<WeatherData> List2 = Utils.toWeatherDataList(jsonData);
         assertEquals(list1,List2);
         System.out.println("✅Passed: Both Station data update successful");
-//        cs1.cleanup();
+        cs1.cleanup();
     }
 
     @Test
-    public void test05_RapidUpdateLamportClockSync() {
+    public void test05_FetchByServerId() {
+        ContentServer cs1 = new ContentServer(serverUrl, "src/main/resources/sa/weather_data_2.txt");
+        cs1.start();
+
+        ContentServer cs2 = new ContentServer(serverUrl, "src/main/resources/queensland/weather_data_3.txt");
+        cs2.start();
+
+        WeatherData saWD = FileUtils.loadWeatherDataObj("src/main/resources/sa/weather_data_2.txt");
+        WeatherData qldWD = FileUtils.loadWeatherDataObj("src/main/resources/queensland/weather_data_3.txt");
+
+        List<WeatherData> saList1 = Arrays.asList(saWD);
+        List<WeatherData> qldList1 = Arrays.asList(qldWD);
+
+        GETClient client = new GETClient(serverUrl);
+        String saJsonData = client.fetchWeatherData("SA01");
+        List<WeatherData> saList2 = Utils.toWeatherDataList(saJsonData);
+        assertEquals(saList1, saList2);
+
+        String qldJsonData = client.fetchWeatherData("QLD01");
+        List<WeatherData> qldList2 = Utils.toWeatherDataList(qldJsonData);
+        assertEquals(qldList1, qldList2);
+
+        String randomJsonData = client.fetchWeatherData("randomID");
+        assertNotNull("❌ Expected empty list from server", randomJsonData);
+
+        System.out.println("✅Passed: Data fetched by Station ID Verified");
+    }
+
+    @Test
+    public void test06_RapidUpdateLamportClockSync() {
         ContentServer cs = new ContentServer(serverUrl, "src/main/resources/vic/weather_data_1.txt");
         for(int index=0; index<10; index++){
             cs.start("src/main/resources/vic/weather_data_2.txt");
@@ -118,11 +147,11 @@ public class ComprehensiveTest {
 
         assertEquals(20, cs.getLamportClock());
         System.out.println("✅Passed: Lamport Clock in sync during rapid update");
-//        cs.cleanup();
+        cs.cleanup();
     }
 
     @Test
-    public void test06_30SecondDataExpiration() throws InterruptedException {
+    public void test07_30SecondDataExpiration() throws InterruptedException {
         ContentServer cs1 = new ContentServer(serverUrl, "src/main/resources/wa/weather_data_2.txt");
         cs1.start();
 

@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -36,14 +35,14 @@ public class BasicRESTFunctionalityTest {
     }
 
     @Test
-    public void test01_GetDataWithoutUpdate() throws InterruptedException {
+    public void test01_GetDataWithoutUpdate(){
         String jsonData = new GETClient(serverUrl).fetchWeatherData(null);
         assertNotNull("❌ Expected empty list from server", jsonData);
         System.out.println("✅ Test Passed. Data received: " + jsonData);
     }
 
     @Test
-    public void test02_OneUpdateOfStation() throws InterruptedException, IOException {
+    public void test02_OneUpdateOfStation(){
         ContentServer cs = new ContentServer(serverUrl, "src/main/resources/nsw/weather_data_1.txt");
         int status = cs.start();
         assertEquals(201, status);
@@ -51,7 +50,7 @@ public class BasicRESTFunctionalityTest {
     }
 
     @Test
-    public void test03_TwoUpdatesForSameStation() throws InterruptedException {
+    public void test03_TwoUpdatesForSameStation(){
         // Load first station data
         ContentServer cs = new ContentServer(serverUrl, "src/main/resources/nsw/weather_data_1.txt");
         int status1 = cs.start();
@@ -62,10 +61,11 @@ public class BasicRESTFunctionalityTest {
         int status2 = cs.start("src/main/resources/nsw/weather_data_2.txt");
         assertEquals(200, status2);
         System.out.println("✅ Station data second loaded successfully with status " + status2);
+        cs.cleanup();
     }
 
     @Test
-    public void test03_updateThreeDataForSameStation() throws InterruptedException {
+    public void test03_updateThreeDataForSameStation(){
         // Load first station data
         ContentServer cs = new ContentServer(serverUrl, "src/main/resources/vic/weather_data_1.txt");
         int status1 = cs.start();
@@ -81,11 +81,11 @@ public class BasicRESTFunctionalityTest {
         int status3 = cs.start("src/main/resources/vic/weather_data_3.txt");
         assertEquals(200, status3);
         System.out.println("✅ Station data third loaded successfully with status " + status2);
-
+        cs.cleanup();
     }
 
     @Test
-    public void test04_UpdateOfTwoDifferentStation() throws InterruptedException {
+    public void test04_UpdateOfTwoDifferentStation() {
 
         // Load first station data
         ContentServer cs1 = new ContentServer(serverUrl, "src/main/resources/nsw/weather_data_1.txt");
@@ -98,10 +98,12 @@ public class BasicRESTFunctionalityTest {
         int status2 = cs2.start();
         assertEquals(201, status2);
         System.out.println("✅ Station 2 data loaded successfully with status " + status2);
+        cs1.cleanup();
+        cs2.cleanup();
     }
 
     @Test
-    public void test05_ThreeUpdatesForSameStation_OutOfClockOrder() throws InterruptedException {
+    public void test05_ThreeUpdatesForSameStation_OutOfClockOrder(){
         // Load first station data
         ContentServer cs = new ContentServer(serverUrl, "src/main/resources/vic/weather_data_1.txt");
         int status1 = cs.start();
@@ -120,7 +122,7 @@ public class BasicRESTFunctionalityTest {
         assertEquals(400, status3);
         System.out.println("✅ Station data third rejected with status " + status2);
 
-
+        cs.cleanup();
     }
 
     @Test
@@ -146,6 +148,7 @@ public class BasicRESTFunctionalityTest {
             // Assert status code = 400
             assertTrue(responseLine.contains("400"));
             System.out.println("✅ Passed: Invalid method correctly returned 400");
+
         }
     }
 
