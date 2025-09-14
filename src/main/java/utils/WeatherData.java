@@ -7,7 +7,16 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Objects;
 
 /**
- * Weather data model for JSON serialization/deserialization
+ * WeatherData represents a complete weather station record in the distributed system.
+ * This class serves as the primary data model for weather information, providing
+ * JSON serialization/deserialization capabilities and data validation methods.
+ * Key Features:
+ * - Complete weather station metadata (location, timezone, identifiers)
+ * - Comprehensive weather measurements (temperature, pressure, humidity, wind)
+ * - JSON serialization with custom field mapping using @SerializedName
+ * - Data expiry functionality for automatic cleanup of stale data
+ * - Thread-safe timestamp management for distributed synchronization
+ * - Proper equals/hashCode implementation for collection operations
  */
 
 public class WeatherData {
@@ -44,18 +53,32 @@ public class WeatherData {
     public WeatherData() {}
 
 
-    // JSON serialization methods
+    /**
+     * Converts this WeatherData object to pretty-formatted JSON string
+     *
+     * @return JSON representation of this weather data
+     */
     public String toJson() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(this);
     }
 
+    /**
+     * Creates WeatherData object from JSON string
+     *
+     * @param json JSON string representation of weather data
+     * @return WeatherData object parsed from JSON
+     */
     public static WeatherData fromJson(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, WeatherData.class);
     }
 
-    // Utility methods
+    /**
+     * Checks if this weather data has expired based on specified timeout
+     * @param expirySeconds Maximum age in seconds before data is considered expired
+     * @return true if data is expired, false otherwise
+     */
     public boolean isExpired(int expirySeconds) {
         long currentTime = System.currentTimeMillis() / 1000;
         return (currentTime - lastUpdated) > expirySeconds;
@@ -65,7 +88,8 @@ public class WeatherData {
         this.lastUpdated = System.currentTimeMillis();
     }
 
-    // Getters and Setters
+    // Getter and Setter methods for all fields
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -133,6 +157,12 @@ public class WeatherData {
                 '}';
     }
 
+    /**
+     * Compares this WeatherData object with another for equality
+     *
+     * @param o Object to compare with
+     * @return true if objects are equal, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
